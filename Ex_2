@@ -1,0 +1,89 @@
+package Mycode
+
+// Car class to store car details
+data class Car(
+    val id: Int,
+    val brand: String,
+    val model: String,
+    val price: Double
+)
+
+// Customer class to represent a customer
+class Customer(val name: String) {
+    private val ownedCars = mutableListOf<Car>()
+
+    // Function to buy a car
+    fun buyCar(car: Car): Payment {
+        val payment = Payment(car.price)
+        ownedCars.add(car)
+        println(
+            "$name bought a ${car.brand} ${car.model} for \$${"%.2f".format(payment.totalCost)} (including tax: \$${"%.2f".format(payment.tax)})"
+        )
+        return payment
+    }
+
+    // Display all owned cars
+    fun displayOwnedCars() {
+        if (ownedCars.isEmpty()) {
+            println("$name does not own any cars.")
+        } else {
+            println("$name owns the following cars:")
+            for (car in ownedCars) {
+                println("- ${car.brand} ${car.model}")
+            }
+        }
+    }
+}
+
+// Payment class for handling payment details
+class Payment(private val price: Double) {
+    val taxRate: Double = calculateTaxRate(price)
+    val tax: Double = price * taxRate
+    val totalCost: Double = price + tax
+
+    // Function to calculate tax rate based on price ranges
+    private fun calculateTaxRate(price: Double): Double {
+        return when {
+            price < 20000 -> 0.05 // 5% tax for prices below $20,000
+            price < 40000 -> 0.10 // 10% tax for prices between $20,000 and $40,000
+            else -> 0.15 // 15% tax for prices above $40,000
+        }
+    }
+}
+
+fun main() {
+    // Input user name
+    print("Enter your name: ")
+    val userName = readLine() ?: "Unknown"
+
+    // Create customer with the input name
+    val customer = Customer(userName)
+
+    // Create a list of cars
+    val car1 = Car(1, "Toyota", "Camry", 18000.0)
+    val car2 = Car(2, "Honda", "Civic", 25000.0)
+    val car3 = Car(3, "Ford", "Mustang", 55000.0)
+    val car4 = Car(4, "Future", "Vision", 60000.0)
+    val availableCars = listOf(car1, car2, car3, car4)
+
+    // Display available cars
+    println("Available cars:")
+    for ((index, car) in availableCars.withIndex()) {
+        println("${car.id}. ${car.brand} ${car.model}: \$${"%.2f".format(car.price)}")
+    }
+
+    // Allow the customer to buy cars
+    print("Select a car to buy (enter the ID): ")
+    val carId = readLine()?.toIntOrNull()
+
+    // Find the car by ID and allow purchase
+    val selectedCar = availableCars.find { it.id == carId }
+    if (selectedCar != null) {
+        customer.buyCar(selectedCar)
+    } else {
+        println("Invalid car ID!")
+    }
+
+    // Display customer's owned cars
+    customer.displayOwnedCars()
+}
